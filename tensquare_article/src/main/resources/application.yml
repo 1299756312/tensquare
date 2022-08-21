@@ -1,0 +1,25 @@
+server:
+  port: 9004
+spring:
+  application:
+    name: tensquare-recruit #指定服务名
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://192.168.59.129:3306/tensquare_article?aharacterEncoding=UTF8&useSSL=false
+    username: root
+    password: root
+
+  jpa:
+    database: MySQL
+    show-sql: true
+    open-in-view: true
+  redis:
+    host: 192.168.59.129
+  data:
+    mongodb:
+      host: 192.168.59.129
+      database: recruitdb
+
+
+
+
