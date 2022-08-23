@@ -2,7 +2,7 @@ server:
   port: 9004
 spring:
   application:
-    name: tensquare-recruit #指定服务名
+    name: tensquare-article #指定服务名
   datasource:
     driverClassName: com.mysql.jdbc.Driver
     url: jdbc:mysql://192.168.59.129:3306/tensquare_article?aharacterEncoding=UTF8&useSSL=false

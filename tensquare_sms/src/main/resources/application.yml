@@ -1,0 +1,13 @@
+server:
+  port: 9009
+spring:
+  application:
+    name: tensquare-sms
+  rabbitmq:
+    host: 192.168.59.129
+aliyun:
+  accesskey: 123
+  accessSecret: 123
+  sms:
+    signName: 阿里云短信测试
+    templateCode: 123

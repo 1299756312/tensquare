@@ -13,6 +13,6 @@ spring:
 logging:
   level:
     org:
-      s
+      spr
 
 
