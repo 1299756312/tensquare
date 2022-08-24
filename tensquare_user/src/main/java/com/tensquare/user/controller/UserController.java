@@ -1,10 +1,15 @@
 package com.tensquare.user.controller;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.tensquare.common.entity.PageResult;
 import com.tensquare.common.entity.Result;
 import com.tensquare.common.entity.StatusCode;
+import com.tensquare.common.entity.SysRole;
+import com.tensquare.user.annotation.PermissionCheck;
+import com.tensquare.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -30,6 +35,33 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private JwtUtil jwtUtil;
+
+
+	/*** 用户登陆 *
+	 * @param mobile *
+	 * @param password *
+	 * @return
+	 * */
+	@RequestMapping(value="/login",method=RequestMethod.POST)
+	public Result login(String mobile,String password){
+		User user = userService.findByMobileAndPassword(mobile,password);
+		if(user!=null){
+			//生成token
+			List<String> roles = new ArrayList<>();
+			roles.add(SysRole.USER);
+			String token = jwtUtil.createJWT(user.getId(),user.getMobile(), roles);
+			HashMap<String, Object> map = new HashMap<>();
+			map.put("token",token);
+			map.put("name",user.getNickname());
+			map.put("role",roles);
+			map.put("avatar",user.getAvatar());
+			return new Result(true,StatusCode.OK,"登陆成功",map);
+		}else{
+			return new Result(false,StatusCode.LOGINERROR,"用户名或密码错误");
+		}
+	}
 
 
 	/**
@@ -46,6 +78,7 @@ public class UserController {
 	 * 查询全部数据
 	 * @return
 	 */
+	@PermissionCheck(role = SysRole.USER)
 	@RequestMapping(method= RequestMethod.GET)
 	public Result findAll(){
 		return new Result(true,StatusCode.OK,"查询成功",userService.findAll());
@@ -111,6 +144,7 @@ public class UserController {
 	 * 删除
 	 * @param id
 	 */
+	@PermissionCheck(role = SysRole.BOSS)
 	@RequestMapping(value="/{id}",method= RequestMethod.DELETE)
 	public Result delete(@PathVariable String id ){
 		userService.deleteById(id);

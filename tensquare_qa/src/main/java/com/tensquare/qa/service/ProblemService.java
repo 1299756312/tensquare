@@ -1,9 +1,6 @@
 package com.tensquare.qa.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -111,6 +108,12 @@ public Page<Problem> findWaitListByLabelId(String labelId,int page,int size){
      */
     public void add(Problem problem) {
         problem.setId(idWorker.nextId() + "");
+        problem.setCreatetime(new Date());
+        problem.setUpdatetime(new Date());
+        problem.setVisits(0L);
+        problem.setReply(0L);
+        problem.setThumbup(0l);
+        problem.setSolve("0");
         problemDao.save(problem);
     }
 

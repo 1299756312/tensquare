@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -43,6 +44,20 @@ public class UserService {
 	private RedisTemplate redisTemplate;
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
+	@Autowired
+	BCryptPasswordEncoder encoder;
+
+
+
+	/*** 根据手机号和密码查询用户 * @param mobile * @param password * @return */
+	public User findByMobileAndPassword(String mobile,String password){
+		User user = userDao.findByMobile(mobile);
+		if(user!=null && encoder.matches(password,user.getPassword())){
+			return user;
+		}else{
+			return null;
+		}
+	}
 
 	/**
 	 * 发送手机验证码
@@ -110,8 +125,12 @@ public class UserService {
 		return userDao.findById(id).get();
 	}
 
-	/*** 增加 * @param user 用户 * @param code 用户填写的验证码 */
+	/*** 增加 *
+	 * @param user 用户 *
+	 * @param code 用户填写的验证码
+	 * */
 	public void add(User user,String code) {
+
 		String  syscode= (String)redisTemplate.opsForValue().get("smscode_" + user.getMobile());
 		if (syscode == null){
 			throw new RuntimeException("请点击获取短信验证码");
@@ -123,12 +142,15 @@ public class UserService {
 
 
 		user.setId( idWorker.nextId()+"" );
+
 		user.setFollowcount(0);
 		user.setFanscount(0);
 		user.setOnline(0L);
 		user.setRegdate(new Date());
 		user.setUpdatedate(new Date());
 		user.setLastdate(new Date());
+		String newPassword =  encoder.encode(user.getPassword());
+		user.setPassword(newPassword);
 		userDao.save(user);
 	}
 

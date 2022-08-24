@@ -6,6 +6,9 @@ import java.util.Map;
 import com.tensquare.common.entity.PageResult;
 import com.tensquare.common.entity.Result;
 import com.tensquare.common.entity.StatusCode;
+import com.tensquare.common.entity.SysRole;
+import com.tensquare.qa.annotation.PermissionCheck;
+import com.tensquare.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -30,6 +33,8 @@ public class ProblemController {
 
     @Autowired
     private ProblemService problemService;
+
+
 
 
     /*** 根据标签ID查询等待回答列表 * @param labelid * @return */
@@ -121,6 +126,7 @@ public Result findHotListByLabelId(@PathVariable String labelid,
      * @param problem
      */
     @RequestMapping(method = RequestMethod.POST)
+    @PermissionCheck(role = SysRole.USER_BOSS)
     public Result add(@RequestBody Problem problem) {
         problemService.add(problem);
         return new Result(true, StatusCode.OK, "增加成功");

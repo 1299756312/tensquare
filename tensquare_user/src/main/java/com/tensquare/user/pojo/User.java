@@ -1,5 +1,6 @@
 package com.tensquare.user.pojo;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -20,6 +21,7 @@ public class User implements Serializable{
 	
 	private String mobile;//手机号码
 	private String password;//密码
+	@Column(name = "nickname")
 	private String nickname;//昵称
 	private String sex;//性别
 	private java.util.Date birthday;//出生年月日

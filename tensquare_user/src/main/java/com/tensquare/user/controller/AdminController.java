@@ -1,10 +1,15 @@
 package com.tensquare.user.controller;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.tensquare.common.entity.PageResult;
 import com.tensquare.common.entity.Result;
 import com.tensquare.common.entity.StatusCode;
+import com.tensquare.common.entity.SysRole;
+import com.tensquare.user.annotation.PermissionCheck;
+import com.tensquare.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -30,12 +35,40 @@ public class AdminController {
 
 	@Autowired
 	private AdminService adminService;
-	
+	@Autowired
+	private JwtUtil jwtUtil;
+
+
+	/**
+	 * 用户登录
+	 * @param loginMap
+	 * @return
+	 */
+	@RequestMapping(value="/login",method=RequestMethod.POST)
+	public Result login(@RequestBody Map<String,String> loginMap){
+		Admin admin = adminService.findByLoginnameAndPassword(loginMap.get("loginname"), loginMap.get("password"));
+		if(admin!=null){
+			//生成token
+			List<String> roles = new ArrayList<>();
+			roles.add(SysRole.BOSS);
+			String token = jwtUtil.createJWT(admin.getId(),admin.getLoginname(), roles);
+			HashMap<String, Object> map = new HashMap<>();
+			map.put("token",token);
+			map.put("name",admin.getLoginname());
+			map.put("role",roles);
+			return new Result(true,StatusCode.OK,"登陆成功",map);
+
+		}else{
+			return new Result(false,StatusCode.LOGINERROR,"用户名或密码错误");
+		}
+	}
+
 	
 	/**
 	 * 查询全部数据
 	 * @return
 	 */
+    @PermissionCheck(role = SysRole.BOSS)
 	@RequestMapping(method= RequestMethod.GET)
 	public Result findAll(){
 		return new Result(true,StatusCode.OK,"查询成功",adminService.findAll());
@@ -80,7 +113,7 @@ public class AdminController {
 	 * @param admin
 	 */
 	@RequestMapping(method=RequestMethod.POST)
-	public Result add(@RequestBody Admin admin  ){
+	public Result add(@RequestBody Admin admin){
 		adminService.add(admin);
 		return new Result(true,StatusCode.OK,"增加成功");
 	}

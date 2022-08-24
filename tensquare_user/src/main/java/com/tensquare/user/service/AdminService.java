@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -39,6 +40,21 @@ public class AdminService {
 	@Autowired
 	private IdWorker idWorker;
 
+	@Autowired
+	private BCryptPasswordEncoder encoder;
+
+
+	/*** 根据登陆名和密码查询 *
+	 * @param loginname *
+	 * @param password *
+	 * @return */
+    public Admin findByLoginnameAndPassword(String loginname,String password){
+		Admin admin = adminDao.findAdminByLoginname(loginname);
+		if(admin != null && encoder.matches(password,admin.getPassword())){
+			return  admin;
+		}
+		return null;
+	}
 	/**
 	 * 查询全部列表
 	 * @return
@@ -86,7 +102,11 @@ public class AdminService {
 	 * @param admin
 	 */
 	public void add(Admin admin) {
+		admin.setId(String.valueOf(idWorker.nextId()));
+		String newPassword = encoder.encode(admin.getPassword());
 		admin.setId( idWorker.nextId()+"" );
+		admin.setPassword(newPassword);
+		admin.setState("0");
 		adminDao.save(admin);
 	}
 
